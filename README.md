@@ -2,7 +2,7 @@
 ![Project hero image](images/nukeplugintest_use.png)
 
 ## Introduction
-A basic plugin structure for nuke.
+A basic plugin structure for nuke. (windows)
 
 ## Table of Contents
 - [Installation](#installation)
