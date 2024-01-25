@@ -2,6 +2,15 @@
 #include "DDImage/Knobs.h"
 #include "DDImage/Row.h"
 
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QComboBox>
+
+#include "ToggleButton.h"
+
 using namespace DD::Image;
 
 const char* CLASS = "NukePluginTest";
@@ -39,8 +48,26 @@ class NukePluginTest : public Iop {
 
     // Define the plugin knobs
     void knobs(Knob_Callback f) override {
-        Button(f, "click_me", "Click Me!");
+        Button(f, "qtmodal");
     };
+
+    int knob_changed(Knob* k) {
+        if (k->name() == "qtmodal") {
+            show_dialog();
+            return 1;
+        }
+        return 0;
+    }
+
+    void show_dialog() {
+
+        QDialog DialogQT;
+
+        DialogQT.setWindowTitle("Hello World!");
+        DialogQT.setWindowFlags(Qt::Dialog);
+
+        DialogQT.exec();
+    }
 
     // Return the plugin required classes
     static const Iop::Description desc;

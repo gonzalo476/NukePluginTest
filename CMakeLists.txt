@@ -29,18 +29,27 @@ if (NUKE_12.2)
     link_directories($("C:/Program Files/Nuke12.2v2"))
 endif()
 
-add_library(NukePluginTest SHARED src/NukePluginTest.cpp)
+# Find Qt
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Add Nuke libraries
+add_library(NukePluginTest SHARED 
+    src/NukePluginTest.cpp
+    src/NukePluginTest.h
+    src/ToggleButton.h
+)
 target_link_libraries(NukePluginTest DDImage)
+target_include_directories(NukePluginTest PUBLIC ${Qt5Widgets_INCLUDE_DIRS})
 
 if (NOT NUKE_10.5)
-    target_link_libraries(NukePluginTest DDImage glew32 legacy_stdio_definitions)
+    target_link_libraries(NukePluginTest DDImage glew32 legacy_stdio_definitions Qt5::Widgets)
 endif()
 
 
 # Generate a .dll plugin in my plugin folder then open nukeX app
-if(CMAKE_BUILD_TYPE MATCHES "Release")
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:/Users/rojas/.nuke/gonz/plugins/3D"
-        COMMAND "C:/Program Files/Nuke12.1v2/Nuke12.1.exe" --nukex
-    )
-endif()
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:/Users/rojas/.nuke/gonz/plugins/3D"
+    COMMAND "C:/Program Files/Nuke12.1v2/Nuke12.1.exe" --nukex
+)
