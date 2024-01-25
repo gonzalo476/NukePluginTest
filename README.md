@@ -1,8 +1,8 @@
 # Nuke Plugin Test
-![Project Logo](images/nukeplugintest_use.png)
+![Project hero image](images/nukeplugintest_use.png)
 
 ## Introduction
-Brief introduction about what the project does and who it's for.
+A basic plugin structure for nuke.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -44,5 +44,5 @@ Common issues and their solutions or troubleshooting steps.
 List of people who have contributed to the project.
 
 ## License
-The license for the project, typically a link to the LICENSE file in the repo.
+MIT License.
 
