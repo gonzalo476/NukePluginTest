@@ -1,6 +1,5 @@
-![Project Logo](link-to-your-image.png)
-
-# Project Title
+# Nuke Plugin Test
+![Project Logo](images/nukeplugintest_use.png.png)
 
 ## Introduction
 Brief introduction about what the project does and who it's for.
