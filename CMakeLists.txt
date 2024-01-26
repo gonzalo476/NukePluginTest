@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 project(NukePluginTest)
+
 set(CMAKE_CXX_FLAGS "/arch:AVX /EHsc")
 
 option(NUKE_11.3 "Nuke 11.3" OFF)
@@ -25,13 +26,18 @@ if (NUKE_12.1)
 endif()
 
 if (NUKE_12.2)
-    include_directories($("C:/Program Files/Nuke12.2v2/include"))
-    link_directories($("C:/Program Files/Nuke12.2v2"))
+    include_directories($("C:/Program Files/Nuke12.2v11/include"))
+    link_directories($("C:/Program Files/Nuke12.2v11"))
 endif()
 
-# Find Qt
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+# Auto Moc
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+# Find Qt
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Add Nuke libraries
@@ -40,8 +46,7 @@ add_library(NukePluginTest SHARED
     src/NukePluginTest.h
     src/ToggleButton.h
 )
-target_link_libraries(NukePluginTest DDImage)
-target_include_directories(NukePluginTest PUBLIC ${Qt5Widgets_INCLUDE_DIRS})
+target_link_libraries(NukePluginTest Qt5::Widgets)
 
 if (NOT NUKE_10.5)
     target_link_libraries(NukePluginTest DDImage glew32 legacy_stdio_definitions Qt5::Widgets)
@@ -50,6 +55,6 @@ endif()
 
 # Generate a .dll plugin in my plugin folder then open nukeX app
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:/Users/rojas/.nuke/gonz/plugins/3D"
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "C:/Users/rojas/.nuke/gonz/plugins/Other"
     COMMAND "C:/Program Files/Nuke12.1v2/Nuke12.1.exe" --nukex
 )

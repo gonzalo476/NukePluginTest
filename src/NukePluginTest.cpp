@@ -47,26 +47,41 @@ class NukePluginTest : public Iop {
     }
 
     // Define the plugin knobs
-    void knobs(Knob_Callback f) override {
-        Button(f, "qtmodal");
+    void knobs(Knob_Callback f) override 
+    {
+        Button(f, "helloworld");
+        SetFlags(f, DD::Image::Knob::STARTLINE);
+
+        Tab_knob(f, "info");
     };
 
-    int knob_changed(Knob* k) {
-        if (k->name() == "qtmodal") {
+    // Perform action when the button is pressed
+    int knob_changed(DD::Image::Knob* k) override 
+    {
+        if (k->is("helloworld")) 
+        {
             show_dialog();
             return 1;
         }
         return 0;
     }
 
-    void show_dialog() {
+    void show_dialog() 
+    {
+        // Create the dialog
+        QDialog dialogQT;
+        dialogQT.setWindowTitle("Hello World!");
+        dialogQT.setWindowFlags(Qt::Dialog);
 
-        QDialog DialogQT;
+        // Create the label
+        QLabel helloWorldLabel(QObject::tr("Hello World!"));
 
-        DialogQT.setWindowTitle("Hello World!");
-        DialogQT.setWindowFlags(Qt::Dialog);
+        // Create and set the layout
+        QGridLayout gridLayoutQT(&dialogQT);
+        gridLayoutQT.addWidget(&helloWorldLabel, 1, 0);
 
-        DialogQT.exec();
+        // Display the dialog and check the result
+        if (dialogQT.exec() == QDialog::Rejected) return;
     }
 
     // Return the plugin required classes
@@ -79,4 +94,4 @@ class NukePluginTest : public Iop {
 static Iop* build(Node* node) {
     return new NukePluginTest(node);
 }
-const Iop::Description NukePluginTest::desc("NukePluginTest", "3D/NukePluginTest", build);
+const Iop::Description NukePluginTest::desc("NukePluginTest", "NukePluginTest", build);
