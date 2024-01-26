@@ -2,7 +2,6 @@
 #include "DDImage/Knobs.h"
 #include "DDImage/Row.h"
 
-#include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QPushButton>
@@ -50,7 +49,7 @@ class NukePluginTest : public Iop {
     // Define the plugin knobs
     void knobs(Knob_Callback f) override 
     {
-        Button(f, "helloworld");
+        Button(f, "qtdialog");
         SetFlags(f, DD::Image::Knob::STARTLINE);
 
         Tab_knob(f, "info");
@@ -59,7 +58,7 @@ class NukePluginTest : public Iop {
     // Perform action when the button is pressed
     int knob_changed(DD::Image::Knob* k) override 
     {
-        if (k->is("helloworld")) 
+        if (k->is("qtdialog")) 
         {
             show_dialog();
             return 1;
@@ -69,16 +68,6 @@ class NukePluginTest : public Iop {
 
 void show_dialog() 
 {
-    // Check if a QApplication instance already exists
-    QApplication* app = nullptr;
-    bool createdApp = false;
-    if (!QApplication::instance()) {
-        int argc = 0;
-        char *argv[] = {nullptr};
-        app = new QApplication(argc, argv);
-        createdApp = true;
-    }
-
     // Create the dialog
     QDialog dialogQT;
     dialogQT.setWindowTitle("Hello World!");
@@ -88,17 +77,11 @@ void show_dialog()
     QLabel helloWorldLabel(QObject::tr("Hello World!"));
 
     // Create and set the layout
-    QGridLayout gridLayoutQT;
-    dialogQT.setLayout(&gridLayoutQT);
-    gridLayoutQT.addWidget(&helloWorldLabel, 0, 0);
+    QGridLayout gridLayoutQT(&dialogQT);
+    gridLayoutQT.addWidget(&helloWorldLabel, 1, 0);
 
     // Display the dialog and check the result
-    dialogQT.exec();
-
-    // Clean up QApplication if it was created
-    if (createdApp) {
-        delete app;
-    }
+    if (dialogQT.exec() == QDialog::Rejected) return;
 };
 
     // Return the plugin required classes

@@ -35,6 +35,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# 1.- Download first the nuke binaries in order to integrate Qt5 in your plugin
+#     Nuke 13 binaries will also work for nuke 12
+#     Binaries: https://www.foundry.com/products/nuke-family/developers
+# 2.- Create a folder in your system disk "C:\NukeQt"
+# 3.- Add "C:\NukeQt" to your system variables with name "QTDIR" and variable value "C:\NukeQt", save it!
+# 4.- Happy coding!
+
 # Find Qt
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
