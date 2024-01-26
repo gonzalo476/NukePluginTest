@@ -40,7 +40,7 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Add Nuke libraries
+# Add libraries
 add_library(NukePluginTest SHARED 
     src/NukePluginTest.cpp
     src/NukePluginTest.h
