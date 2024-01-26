@@ -50,6 +50,7 @@ class NukePluginTest : public Iop {
     void knobs(Knob_Callback f) override 
     {
         Button(f, "qtdialog");
+        Button(f, "createnode");
         SetFlags(f, DD::Image::Knob::STARTLINE);
 
         Tab_knob(f, "info");
@@ -60,13 +61,28 @@ class NukePluginTest : public Iop {
     {
         if (k->is("qtdialog")) 
         {
-            show_dialog();
+            show_qt_dialog();
+            return 1;
+        };
+
+        if (k->is("createnode"))
+        {
+            create_nuke_node();
             return 1;
         }
         return 0;
     }
 
-void show_dialog() 
+void create_nuke_node()
+{
+    std::stringstream Script;
+    Script << "nukescripts.clear_selection_recursive();";
+    Script << "nuke.autoplace(nuke.createNode('Camera2'));";
+    script_command(Script.str().c_str(),true,false);
+    script_unlock();
+}
+
+void show_qt_dialog() 
 {
     // Create the dialog
     QDialog dialogQT;
