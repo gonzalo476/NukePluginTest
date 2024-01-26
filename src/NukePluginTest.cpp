@@ -1,6 +1,7 @@
 #include "DDImage/Iop.h"
 #include "DDImage/Knobs.h"
 #include "DDImage/Row.h"
+#include "DDImage/CameraOp.h"
 
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGridLayout>
@@ -16,7 +17,7 @@ using namespace DD::Image;
 const char* CLASS = "NukePluginTest";
 const char* HELP = "A basic nuke plugin for nuke.";
 
-class NukePluginTest : public Iop {
+class NukePluginTest : public  DD::Image::Iop {
     public:
     // Constructor
     NukePluginTest(Node* node) : Iop(node) {}
@@ -51,6 +52,7 @@ class NukePluginTest : public Iop {
     {
         Button(f, "qtdialog");
         Button(f, "createnode");
+        Button(f, "copynodeparams");
         SetFlags(f, DD::Image::Knob::STARTLINE);
 
         Tab_knob(f, "info");
@@ -65,6 +67,12 @@ class NukePluginTest : public Iop {
             return 1;
         };
 
+        if (k->is("copynodeparams")) 
+        {
+            copy_create_node_params();
+            return 1;
+        };
+
         if (k->is("createnode"))
         {
             create_nuke_node();
@@ -73,35 +81,64 @@ class NukePluginTest : public Iop {
         return 0;
     }
 
-void create_nuke_node()
-{
-    std::stringstream Script;
-    Script << "nukescripts.clear_selection_recursive();";
-    Script << "nuke.autoplace(nuke.createNode('Camera2'));";
-    script_command(Script.str().c_str(),true,false);
-    script_unlock();
-}
+    // create node inputs
+    const char* input_label(int n, char*) const override
+    {
+    	switch (n) 
+        {
+            case 0: return "Source";
+            case 1: return "Camera";
+            default: return "";
+        }
+    }
 
-void show_qt_dialog() 
-{
-    // Create the dialog
-    QDialog dialogQT;
-    dialogQT.setWindowTitle("Hello World!");
-    dialogQT.setWindowFlags(Qt::Dialog);
+    // validate inputs
+    bool test_input(int input, DD::Image::Op *op) const override
+    {
+        if (input==1)
+        {
+            return (dynamic_cast<CameraOp*>(op) != nullptr);
+        }
+        return Iop::test_input(input, op);
+    }
 
-    // Create the label
-    QLabel helloWorldLabel(QObject::tr("Hello World!"));
+    void copy_create_node_params()
+    {
 
-    // Create and set the layout
-    QGridLayout gridLayoutQT(&dialogQT);
-    gridLayoutQT.addWidget(&helloWorldLabel, 1, 0);
+    }
 
-    // Display the dialog and check the result
-    if (dialogQT.exec() == QDialog::Rejected) return;
-};
+    void create_nuke_node()
+    {
+        // Run python in nuke to create a node
+        std::stringstream Script;
+        Script << "nukescripts.clear_selection_recursive();";
+        Script << "nuke.autoplace(nuke.createNode('Camera2'));";
+        script_command(Script.str().c_str(),true,false);
+        script_unlock();
+    }
+
+    void show_qt_dialog() 
+    {
+        // Create the dialog
+        QDialog dialogQT;
+        dialogQT.setWindowTitle("Hello World!");
+        dialogQT.setWindowFlags(Qt::Dialog);
+
+        // Create the label
+        QLabel helloWorldLabel(QObject::tr("Hello World!"));
+
+        // Create and set the layout
+        QGridLayout gridLayoutQT(&dialogQT);
+        gridLayoutQT.addWidget(&helloWorldLabel, 1, 0);
+
+        // Display the dialog and check the result
+        if (dialogQT.exec() == QDialog::Rejected) return;
+    };
 
     // Return the plugin required classes
     static const Iop::Description desc;
+    int maximum_inputs() const override { return 2; }
+    int minimum_inputs() const override { return 2; }
     const char* Class() const override { return CLASS; }
     const char* node_help() const override { return HELP; }
 };
@@ -110,4 +147,4 @@ void show_qt_dialog()
 static Iop* build(Node* node) {
     return new NukePluginTest(node);
 }
-const Iop::Description NukePluginTest::desc("NukePluginTest", "NukePluginTest", build);
+const  DD::Image::Iop::Description NukePluginTest::desc("NukePluginTest", "NukePluginTest", build);
