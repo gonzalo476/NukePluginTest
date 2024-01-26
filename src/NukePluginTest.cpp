@@ -17,16 +17,13 @@ using namespace DD::Image;
 const char* CLASS = "NukePluginTest";
 const char* HELP = "A basic nuke plugin for nuke.";
 
-class NukePluginTest : public  DD::Image::Iop {
+class NukePluginTest : public  Iop {
     public:
     // Constructor
     NukePluginTest(Node* node) : Iop(node) {}
 
-    // Required Method
-    void _validate(bool) override {
-        // set the output image size and format
-        copy_info();
-    }
+    // Global Vectors and Vars
+    Vector3 storedTranslate;
 
     void _request(int x, int y, int r, int t, ChannelMask channels,  int count) override {
         // request the input image data
@@ -93,6 +90,9 @@ class NukePluginTest : public  DD::Image::Iop {
     }
 
     // validate inputs
+    // this validates when the user connect the input of this node to a desired input
+    // then it checks that the connected input1 ("Camera") corresponds to a Camera node
+    // last it checks that the connected input0 ("Source") corresponds to a any 2d node (Iop)
     bool test_input(int input, DD::Image::Op *op) const override
     {
         if (input==1)
@@ -102,9 +102,37 @@ class NukePluginTest : public  DD::Image::Iop {
         return Iop::test_input(input, op);
     }
 
+    // Validates all the inputs that the node is using
+    void _validate(bool for_real) override {
+        // Call the validate base class
+        Iop::_validate(for_real);
+
+        // Check if there is a camera connected to input1
+        Op* cameraOp = input(1);
+
+        // validate if camera is connected
+        if (cameraOp) {
+            // Access to the transform knob
+            Knob* translateKnob = cameraOp->knob("translate");
+            // Get Camera transform values
+            if (translateKnob) {
+                storedTranslate.x = translateKnob->get_value(0);
+                storedTranslate.y = translateKnob->get_value(1);
+                storedTranslate.z = translateKnob->get_value(2);
+            }
+        }
+    }
+
     void copy_create_node_params()
     {
-
+        // Run python in nuke to create a node
+        std::stringstream Script;
+        Script << "nukescripts.clear_selection_recursive();";
+        Script << "cameraNode = nuke.createNode('Camera2');";
+        Script << "cameraNode['translate'].setValue([" << storedTranslate.x << "," << storedTranslate.y << "," << storedTranslate.z << "]);";
+        Script << "nuke.autoplace(cameraNode)";
+        script_command(Script.str().c_str(),true,false);
+        script_unlock();
     }
 
     void create_nuke_node()
@@ -112,7 +140,8 @@ class NukePluginTest : public  DD::Image::Iop {
         // Run python in nuke to create a node
         std::stringstream Script;
         Script << "nukescripts.clear_selection_recursive();";
-        Script << "nuke.autoplace(nuke.createNode('Camera2'));";
+        Script << "cameraNode = nuke.createNode('Camera2');";
+        Script << "nuke.autoplace(cameraNode)";
         script_command(Script.str().c_str(),true,false);
         script_unlock();
     }
