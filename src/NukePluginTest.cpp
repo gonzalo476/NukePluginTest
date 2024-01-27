@@ -102,7 +102,8 @@ class NukePluginTest : public  Iop {
         return Iop::test_input(input, op);
     }
 
-    // Validates all the inputs that the node is using
+    // Validates all the inputs while the node is being used
+    // This function will only perform when the output is connected
     void _validate(bool for_real) override {
         // Call the validate base class
         Iop::_validate(for_real);
@@ -125,14 +126,30 @@ class NukePluginTest : public  Iop {
 
     void copy_create_node_params()
     {
-        // Run python in nuke to create a node
-        std::stringstream Script;
-        Script << "nukescripts.clear_selection_recursive();";
-        Script << "cameraNode = nuke.createNode('Camera2');";
-        Script << "cameraNode['translate'].setValue([" << storedTranslate.x << "," << storedTranslate.y << "," << storedTranslate.z << "]);";
-        Script << "nuke.autoplace(cameraNode)";
-        script_command(Script.str().c_str(),true,false);
-        script_unlock();
+        if (input(0)) input(0)->validate();
+        if (input(1)) input(1)->validate();
+
+        Op* cameraOp = input(1);
+
+        // validate if camera is connected
+        if (cameraOp) {
+            // Access to the translate knobs
+            Knob* translateKnob = cameraOp->knob("translate");
+            // Get Camera transform values
+            if (translateKnob) {
+                storedTranslate.x = translateKnob->get_value(0);
+                storedTranslate.y = translateKnob->get_value(1);
+                storedTranslate.z = translateKnob->get_value(2);
+            }
+            // Run python in nuke to create a node
+            std::stringstream Script;
+            Script << "nukescripts.clear_selection_recursive();";
+            Script << "cameraNode = nuke.createNode('Camera2');";
+            Script << "cameraNode['translate'].setValue([" << storedTranslate.x << "," << storedTranslate.y << "," << storedTranslate.z << "]);";
+            Script << "nuke.autoplace(cameraNode)";
+            script_command(Script.str().c_str(),true,false);
+            script_unlock();
+        }
     }
 
     void create_nuke_node()
