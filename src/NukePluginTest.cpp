@@ -2,6 +2,7 @@
 #include "DDImage/Knobs.h"
 #include "DDImage/Row.h"
 #include "DDImage/CameraOp.h"
+#include "DDImage/Format.h"
 
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGridLayout>
@@ -24,6 +25,7 @@ class NukePluginTest : public  Iop {
 
     // Global Vectors and Vars
     Vector3 storedTranslate;
+    FormatPair outFormat;
 
     void _request(int x, int y, int r, int t, ChannelMask channels,  int count) override {
         // request the input image data
@@ -94,20 +96,27 @@ class NukePluginTest : public  Iop {
     // this validates when the user connect the input of this node to a desired input
     // then it checks that the connected input1 ("Camera") corresponds to a Camera node
     // last it checks that the connected input0 ("Source") corresponds to a any 2d node (Iop)
-    bool test_input(int input, DD::Image::Op *op) const override
-    {
-        if (input==1)
-        {
-            return (dynamic_cast<CameraOp*>(op) != nullptr);
+    bool test_input(int input, DD::Image::Op* op) const override {
+        // When input is 1, we expect it to be a CameraOp
+        if (input == 1) {
+            // Check if the op is not nullptr before trying to dynamic cast
+            if (op == nullptr) {
+                // No op is connected, so the input is not valid
+                return false;
+            }
+            // Return true if the dynamic cast is successful, false otherwise
+            return dynamic_cast<CameraOp*>(op) != nullptr;
         }
+
+        // For other inputs, call the base class method
         return Iop::test_input(input, op);
     }
 
     // Validates all the inputs while the node is being used
     // This function will only perform when the output is connected
     void _validate(bool for_real) override {
-        // Call the validate base class
-        Iop::_validate(for_real);
+        // adding copy_info bcs currently i don't need to reformat my footage
+        copy_info();
 
         // Check if there is a camera connected to input1
         Op* cameraOp = input(1);
