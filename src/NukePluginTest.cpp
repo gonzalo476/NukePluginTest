@@ -73,6 +73,12 @@ class NukePluginTest : public  Iop {
             return 1;
         };
 
+        if (k->is("copyanimation")) 
+        {
+            copy_cam_animation();
+            return 1;
+        };
+
         if (k->is("createnode"))
         {
             create_nuke_node();
@@ -96,7 +102,8 @@ class NukePluginTest : public  Iop {
     // this validates when the user connect the input of this node to a desired input
     // then it checks that the connected input1 ("Camera") corresponds to a Camera node
     // last it checks that the connected input0 ("Source") corresponds to a any 2d node (Iop)
-    bool test_input(int input, DD::Image::Op* op) const override {
+    bool test_input(int input, DD::Image::Op* op) const override 
+    {
         // When input is 1, we expect it to be a CameraOp
         if (input == 1) {
             // Check if the op is not nullptr before trying to dynamic cast
@@ -114,7 +121,8 @@ class NukePluginTest : public  Iop {
 
     // Validates all the inputs while the node is being used
     // This function will only perform when the output is connected
-    void _validate(bool for_real) override {
+    void _validate(bool for_real) override 
+    {
         // adding copy_info bcs currently i don't need to reformat my footage
         copy_info();
 
@@ -131,6 +139,26 @@ class NukePluginTest : public  Iop {
                 storedTranslate.y = translateKnob->get_value(1);
                 storedTranslate.z = translateKnob->get_value(2);
             }
+        }
+    }
+
+    void copy_cam_animation() 
+    {
+        if (input(0)) input(0)->validate();
+        if (input(1)) input(1)->validate();
+
+        Op* cameraOp = input(1);
+
+        if (cameraOp) {
+            // Create the camera node
+            // knob {curve xframe num}
+            // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
+            std::stringstream Script;
+            Script << "nukescripts.clear_selection_recursive();";
+            Script << "cameraNode = nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False);";
+            Script << "nuke.autoplace(cameraNode)";
+            script_command(Script.str().c_str(), true, false);
+            script_unlock();           
         }
     }
 
@@ -164,7 +192,7 @@ class NukePluginTest : public  Iop {
 
     void create_nuke_node()
     {
-        // Run python in nuke to create a node
+        // Run python in nuke to create a camera node
         std::stringstream Script;
         Script << "nukescripts.clear_selection_recursive();";
         Script << "cameraNode = nuke.createNode('Camera2');";

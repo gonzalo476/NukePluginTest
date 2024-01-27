@@ -13,6 +13,10 @@ Thumbs.db
 # Compiled Python files
 *.pyc
 
+#
+examples/
+examples/*
+
 # Compiled C++ files
 *.out
 

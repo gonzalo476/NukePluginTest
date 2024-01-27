@@ -50,6 +50,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Add libraries
 add_library(NukePluginTest SHARED 
     src/NukePluginTest.cpp
+    src/TimeCam.cpp
     src/NukePluginTest.h
     src/ToggleButton.h
 )
