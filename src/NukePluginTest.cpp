@@ -49,7 +49,8 @@ class NukePluginTest : public  Iop {
     {
         Button(f, "qtdialog");
         Button(f, "createnode");
-        Button(f, "copynodeparams");
+        Button(f, "copytransparams");
+        Button(f, "copyanimation");
         SetFlags(f, DD::Image::Knob::STARTLINE);
 
         Tab_knob(f, "info");
@@ -64,7 +65,7 @@ class NukePluginTest : public  Iop {
             return 1;
         };
 
-        if (k->is("copynodeparams")) 
+        if (k->is("copytransparams")) 
         {
             copy_create_node_params();
             return 1;
