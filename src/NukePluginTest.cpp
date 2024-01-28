@@ -163,6 +163,10 @@ class NukePluginTest : public  Iop {
             Knob* scaleKnob = cameraOp->knob("scaling");
 
             if (translateKnob) {
+                // curve vars
+                double trans_x, trans_y, trans_z;
+                std::string t_curve_x, t_curve_y, t_curve_z;
+
                 // get number of keys of each knob
                 int transKeys = translateKnob->getNumKeys();
                 int rotKeys = rotateKnob->getNumKeys();
@@ -173,14 +177,27 @@ class NukePluginTest : public  Iop {
                     // get the frame of the current key
                     int frame = translateKnob->getKeyTime(i);
                     // get knob key value of the current frame
-                    storedTranslate.x = translateKnob->get_value_at(frame, 0);
-                    storedTranslate.y = translateKnob->get_value_at(frame, 1);
-                    storedTranslate.z = translateKnob->get_value_at(frame, 2);
-                    // print
-                    // std::cout << "frame " << frame << " has a transform value in x of " << storedTranslate.x << std::endl;
-                    // std::cout << "frame " << frame << " has a transform value in y of " << storedTranslate.y << std::endl;
-                    // std::cout << "frame " << frame << " has a transform value in z of " << storedTranslate.z << std::endl;
+                    trans_x = translateKnob->get_value_at(frame, 0); // get translate x
+                    trans_y = translateKnob->get_value_at(frame, 1); // get translate y
+                    trans_z = translateKnob->get_value_at(frame, 2); // get translate z
+                    // concat curve as "{curve xframe num}"
+                    t_curve_x += " x" + std::to_string(frame) + " " + std::to_string(trans_x);
+                    t_curve_y += " x" + std::to_string(frame) + " " + std::to_string(trans_y);
+                    t_curve_z += " x" + std::to_string(frame) + " " + std::to_string(trans_z);
                 }
+                // transform x
+                // std::cout << "{curve " << t_curve_x << "}" << " {curve " << t_curve_y << "}" << " {curve " << t_curve_y << "}" << std::endl;
+                std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_y + "}}";
+
+                std::stringstream Script;
+                Script << "nukescripts.clear_selection_recursive();";
+                Script << "cameraNode = nuke.createNode('Camera2', '";
+                Script << "translate " << t_result;
+                Script << "', False);";
+                Script << "nuke.autoplace(cameraNode)";
+                script_command(Script.str().c_str(), true, false);
+                script_unlock();  
+
             }
 
             // Create the camera node

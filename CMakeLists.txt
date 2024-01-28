@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 3.8)
 project(NukePluginTest)
 
 set(CMAKE_CXX_FLAGS "/arch:AVX /EHsc")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 option(NUKE_11.3 "Nuke 11.3" OFF)
 option(NUKE_12.0 "Nuke 12.0" OFF)
