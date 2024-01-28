@@ -149,16 +149,52 @@ class NukePluginTest : public  Iop {
 
         Op* cameraOp = input(1);
 
+        const char* cameraKnobs[] = {
+            "translate",
+            "rotate",
+            "scaling"
+        };
+
+        // validate that camera input is connected
         if (cameraOp) {
+            // knobs
+            Knob* translateKnob = cameraOp->knob("translate");
+            Knob* rotateKnob = cameraOp->knob("rotate");
+            Knob* scaleKnob = cameraOp->knob("scaling");
+
+            if (translateKnob) {
+                // get number of keys of each knob
+                int transKeys = translateKnob->getNumKeys();
+                int rotKeys = rotateKnob->getNumKeys();
+                int scaleKeys = scaleKnob->getNumKeys();
+
+                // get transform knob keyframes and values
+                for (int i = 0; i < transKeys; ++i) {
+                    // get the frame of the current key
+                    int frame = translateKnob->getKeyTime(i);
+                    // get knob key value of the current frame
+                    storedTranslate.x = translateKnob->get_value_at(frame, 0);
+                    storedTranslate.y = translateKnob->get_value_at(frame, 1);
+                    storedTranslate.z = translateKnob->get_value_at(frame, 2);
+                    // print
+                    // std::cout << "frame " << frame << " has a transform value in x of " << storedTranslate.x << std::endl;
+                    // std::cout << "frame " << frame << " has a transform value in y of " << storedTranslate.y << std::endl;
+                    // std::cout << "frame " << frame << " has a transform value in z of " << storedTranslate.z << std::endl;
+                }
+            }
+
             // Create the camera node
             // knob {curve xframe num}
             // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
-            std::stringstream Script;
-            Script << "nukescripts.clear_selection_recursive();";
-            Script << "cameraNode = nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False);";
-            Script << "nuke.autoplace(cameraNode)";
-            script_command(Script.str().c_str(), true, false);
-            script_unlock();           
+            // code:
+            // std::stringstream Script;
+            // Script << "nukescripts.clear_selection_recursive();";
+            // Script << "cameraNode = nuke.createNode('Camera2', '";
+            // Script << "translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}";
+            // Script << "', False);";
+            // Script << "nuke.autoplace(cameraNode)";
+            // script_command(Script.str().c_str(), true, false);
+            // script_unlock();           
         }
     }
 
