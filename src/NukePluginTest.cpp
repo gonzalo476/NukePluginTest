@@ -11,7 +11,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QComboBox>
 
-#include "ToggleButton.h"
+#include "Utils.h"
 
 using namespace DD::Image;
 
@@ -180,15 +180,18 @@ class NukePluginTest : public  Iop {
                     trans_x = translateKnob->get_value_at(frame, 0); // get translate x
                     trans_y = translateKnob->get_value_at(frame, 1); // get translate y
                     trans_z = translateKnob->get_value_at(frame, 2); // get translate z
+                    // fromat double to prevent c++ fix my 9 digit double
+                    std::string f_trans_x = formatDouble(trans_x);
+                    std::string f_trans_y = formatDouble(trans_y);
+                    std::string f_trans_z = formatDouble(trans_z);
                     // concat curve as "{curve xframe num}"
-                    t_curve_x += " x" + std::to_string(frame) + " " + std::to_string(trans_x);
-                    t_curve_y += " x" + std::to_string(frame) + " " + std::to_string(trans_y);
-                    t_curve_z += " x" + std::to_string(frame) + " " + std::to_string(trans_z);
+                    t_curve_x += " x" + std::to_string(frame) + " " + f_trans_x;
+                    t_curve_y += " x" + std::to_string(frame) + " " + f_trans_y;
+                    t_curve_z += " x" + std::to_string(frame) + " " + f_trans_z;
                 }
                 // transform x
                 // std::cout << "{curve " << t_curve_x << "}" << " {curve " << t_curve_y << "}" << " {curve " << t_curve_y << "}" << std::endl;
-                std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_y + "}}";
-
+                std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_z + "}}";
                 std::stringstream Script;
                 Script << "nukescripts.clear_selection_recursive();";
                 Script << "cameraNode = nuke.createNode('Camera2', '";
