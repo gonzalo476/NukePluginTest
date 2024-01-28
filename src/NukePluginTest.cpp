@@ -149,12 +149,6 @@ class NukePluginTest : public  Iop {
 
         Op* cameraOp = input(1);
 
-        const char* cameraKnobs[] = {
-            "translate",
-            "rotate",
-            "scaling"
-        };
-
         // validate that camera input is connected
         if (cameraOp) {
             // knobs
@@ -189,8 +183,10 @@ class NukePluginTest : public  Iop {
                     t_curve_y += " x" + std::to_string(frame) + " " + f_trans_y;
                     t_curve_z += " x" + std::to_string(frame) + " " + f_trans_z;
                 }
-                // transform x
-                // std::cout << "{curve " << t_curve_x << "}" << " {curve " << t_curve_y << "}" << " {curve " << t_curve_y << "}" << std::endl;
+                // Create the camera node
+                // knob {curve xframe num}
+                // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
+                // code:
                 std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_z + "}}";
                 std::stringstream Script;
                 Script << "nukescripts.clear_selection_recursive();";
@@ -201,20 +197,7 @@ class NukePluginTest : public  Iop {
                 script_command(Script.str().c_str(), true, false);
                 script_unlock();  
 
-            }
-
-            // Create the camera node
-            // knob {curve xframe num}
-            // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
-            // code:
-            // std::stringstream Script;
-            // Script << "nukescripts.clear_selection_recursive();";
-            // Script << "cameraNode = nuke.createNode('Camera2', '";
-            // Script << "translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}";
-            // Script << "', False);";
-            // Script << "nuke.autoplace(cameraNode)";
-            // script_command(Script.str().c_str(), true, false);
-            // script_unlock();           
+            }        
         }
     }
 
