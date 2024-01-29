@@ -144,60 +144,73 @@ class NukePluginTest : public  Iop {
 
     void copy_cam_animation() 
     {
+        enum KNOBKEY
+        {
+            KNOBKEY_X0, KNOBKEY_Y0, KNOBKEY_Z0,
+            KNOBKEY_X1, KNOBKEY_Y1, KNOBKEY_Z1,
+            KNOBKEY_X2, KNOBKEY_Y2, KNOBKEY_Z2,
+            KNOBKEY_SIZE,
+        };
+
         if (input(0)) input(0)->validate();
         if (input(1)) input(1)->validate();
 
         Op* cameraOp = input(1);
 
+        // DD::Image::OutputContext context = outputContext();
+        // context.setFrame((double)1050.0);
+        // std::cout << context.frame() << std::endl;
+
         // validate that camera input is connected
         if (cameraOp) {
-            // knobs
+            // camera knobs
             Knob* translateKnob = cameraOp->knob("translate");
             Knob* rotateKnob = cameraOp->knob("rotate");
             Knob* scaleKnob = cameraOp->knob("scaling");
 
-            if (translateKnob) {
-                // curve vars
-                double trans_x, trans_y, trans_z;
-                std::string t_curve_x, t_curve_y, t_curve_z;
+            // knob value vars
+            float x = 0;
+            float y = 0;
+            float z = 0;
 
-                // get number of keys of each knob
-                int transKeys = translateKnob->getNumKeys();
-                int rotKeys = rotateKnob->getNumKeys();
-                int scaleKeys = scaleKnob->getNumKeys();
+            // curve strings vars
+            std::string t_curve_x, t_curve_y, t_curve_z;
 
-                // get transform knob keyframes and values
-                for (int i = 0; i < transKeys; ++i) {
-                    // get the frame of the current key
-                    int frame = translateKnob->getKeyTime(i);
-                    // get knob key value of the current frame
-                    trans_x = translateKnob->get_value_at(frame, 0); // get translate x
-                    trans_y = translateKnob->get_value_at(frame, 1); // get translate y
-                    trans_z = translateKnob->get_value_at(frame, 2); // get translate z
-                    // fromat double to prevent c++ fix my 9 digit double
-                    std::string f_trans_x = formatDouble(trans_x);
-                    std::string f_trans_y = formatDouble(trans_y);
-                    std::string f_trans_z = formatDouble(trans_z);
-                    // concat curve as "{curve xframe num}"
-                    t_curve_x += " x" + std::to_string(frame) + " " + f_trans_x;
-                    t_curve_y += " x" + std::to_string(frame) + " " + f_trans_y;
-                    t_curve_z += " x" + std::to_string(frame) + " " + f_trans_z;
-                }
-                // Create the camera node
-                // knob {curve xframe num}
-                // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
-                // code:
-                std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_z + "}}";
-                std::stringstream Script;
-                Script << "nukescripts.clear_selection_recursive();";
-                Script << "cameraNode = nuke.createNode('Camera2', '";
-                Script << "translate " << t_result;
-                Script << "', False);";
-                Script << "nuke.autoplace(cameraNode)";
-                script_command(Script.str().c_str(), true, false);
-                script_unlock();  
+            // get number of keys of each knob
+            int transKeys = translateKnob->getNumKeys();
+            int rotKeys = rotateKnob->getNumKeys();
+            int scaleKeys = scaleKnob->getNumKeys();
 
-            }        
+            // get transform transform knob keyframes and values
+            for (int i = 0; i < transKeys; ++i) {
+                // get the frame of the current key
+                int frame = translateKnob->getKeyTime(i);
+                // get knob key value of the current frame
+                x = translateKnob->get_value_at(frame, 0); // get translate x
+                y = translateKnob->get_value_at(frame, 1); // get translate y
+                z = translateKnob->get_value_at(frame, 2); // get translate z
+                // fromat double to prevent c++ fix my 10 digit double
+                std::string f_trans_x = formatDouble(x);
+                std::string f_trans_y = formatDouble(y);
+                std::string f_trans_z = formatDouble(z);
+                // concat curve as "{curve xframe num}"
+                t_curve_x += " x" + std::to_string(frame) + " " + f_trans_x;
+                t_curve_y += " x" + std::to_string(frame) + " " + f_trans_y;
+                t_curve_z += " x" + std::to_string(frame) + " " + f_trans_z;
+            }
+            // Create the camera node
+            // knob {curve xframe num}
+            // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
+            // code:
+            std::string t_result = "{{curve " + t_curve_x + "}" + " {curve " + t_curve_y + "}" + " {curve " + t_curve_z + "}}";
+            std::stringstream Script;
+            Script << "nukescripts.clear_selection_recursive();";
+            Script << "cameraNode = nuke.createNode('Camera2', '";
+            Script << "translate " << t_result;
+            Script << "', False);";
+            Script << "nuke.autoplace(cameraNode)";
+            script_command(Script.str().c_str(), true, false);
+            script_unlock();       
         }
     }
 
