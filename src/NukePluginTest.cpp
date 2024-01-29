@@ -157,12 +157,16 @@ class NukePluginTest : public  Iop {
 
         Op* cameraOp = input(1);
 
-        // DD::Image::OutputContext context = outputContext();
-        // context.setFrame((double)1050.0);
-        // std::cout << context.frame() << std::endl;
-
-        // validate that camera input is connected
+        // validate that camera is connected
         if (cameraOp) {
+            double frameStart = 1001.0;
+            double frameEnd = 1100.0;
+            
+            DD::Image::OutputContext context = outputContext();
+            // context.setFrame((double)1050.0);
+            // std::cout << context.frame() << std::endl;
+
+            // validate that camera input is connected
             // camera knobs
             Knob* translateKnob = cameraOp->knob("translate");
             Knob* rotateKnob = cameraOp->knob("rotate");
@@ -182,9 +186,9 @@ class NukePluginTest : public  Iop {
             int scaleKeys = scaleKnob->getNumKeys();
 
             // get transform transform knob keyframes and values
-            for (int i = 0; i < transKeys; ++i) {
+            for (int f = 0; f < transKeys; ++f) {
                 // get the frame of the current key
-                int frame = translateKnob->getKeyTime(i);
+                int frame = translateKnob->getKeyTime(f);
                 // get knob key value of the current frame
                 x = translateKnob->get_value_at(frame, 0); // get translate x
                 y = translateKnob->get_value_at(frame, 1); // get translate y
@@ -198,6 +202,7 @@ class NukePluginTest : public  Iop {
                 t_curve_y += " x" + std::to_string(frame) + " " + f_trans_y;
                 t_curve_z += " x" + std::to_string(frame) + " " + f_trans_z;
             }
+
             // Create the camera node
             // knob {curve xframe num}
             // py example: nuke.createNode('Camera2', 'translate {{curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0} {curve x1 0 x30 1 x60 5 x100 0}}', False)
@@ -212,6 +217,7 @@ class NukePluginTest : public  Iop {
             script_command(Script.str().c_str(), true, false);
             script_unlock();       
         }
+
     }
 
     void copy_create_node_params()
