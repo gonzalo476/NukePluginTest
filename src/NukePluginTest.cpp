@@ -144,14 +144,6 @@ class NukePluginTest : public  Iop {
 
     void copy_cam_animation() 
     {
-        enum KNOBKEY
-        {
-            KNOBKEY_X0, KNOBKEY_Y0, KNOBKEY_Z0,
-            KNOBKEY_X1, KNOBKEY_Y1, KNOBKEY_Z1,
-            KNOBKEY_X2, KNOBKEY_Y2, KNOBKEY_Z2,
-            KNOBKEY_SIZE,
-        };
-
         if (input(0)) input(0)->validate();
         if (input(1)) input(1)->validate();
 
@@ -159,33 +151,12 @@ class NukePluginTest : public  Iop {
 
         // validate that camera is connected
         if (cameraOp) {
-            double frameStart = 1001.0;
-            double frameEnd = 1100.0;
-            
-            DD::Image::OutputContext context = outputContext();
-            // context.setFrame((double)1050.0);
-            // std::cout << context.frame() << std::endl;
-
-            // validate that camera input is connected
-            // camera knobs
-            Knob* translateKnob = cameraOp->knob("translate");
-            Knob* rotateKnob = cameraOp->knob("rotate");
-            Knob* scaleKnob = cameraOp->knob("scaling");
-
             // knob value vars
             float x = 0;
             float y = 0;
             float z = 0;
 
-            // curve strings vars
-            std::string t_curve_x, t_curve_y, t_curve_z;
-            
             std::string translation;
-
-            // get number of keys of each knob
-            int transKeys = translateKnob->getNumKeys();
-            int rotKeys = rotateKnob->getNumKeys();
-            int scaleKeys = scaleKnob->getNumKeys();
 
             // translation knobs
             std::vector<const char*> tk = {
@@ -194,6 +165,7 @@ class NukePluginTest : public  Iop {
                 "scaling"
             };
             
+            // iterate each knob from vector
             for (int t = 0; t < tk.size(); ++t) {
                 // get current knob
                 Knob* currKnob = cameraOp->knob(tk[t]);
@@ -204,7 +176,7 @@ class NukePluginTest : public  Iop {
                 std::string currTransName = std::string(tk[t]);
                 std::string cx, cy, cz;
 
-                // validate if the current knob has keyframes
+                // validate if the current knob has keyframes to copy
                 if (currKeys > 0) {
                     for (int k = 0; k < currKeys; ++k) {
                         // get key ref frame
@@ -225,9 +197,6 @@ class NukePluginTest : public  Iop {
                     }
                     // concatenate all translation knobs
                     translation += currTransName + " {{curve " + cx + "}" + " {curve " + cy + "}" + " {curve " + cz + "}} ";
-                } else {
-                    // if the translation doesnt have key frames then set them to 1 (for now)
-                    translation += currTransName + " {1 1 1} ";
                 }
             }
 
