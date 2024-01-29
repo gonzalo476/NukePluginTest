@@ -187,6 +187,7 @@ class NukePluginTest : public  Iop {
             int rotKeys = rotateKnob->getNumKeys();
             int scaleKeys = scaleKnob->getNumKeys();
 
+            // translation knobs
             std::vector<const char*> tk = {
                 "translate", 
                 "rotate", 
@@ -194,10 +195,13 @@ class NukePluginTest : public  Iop {
             };
             
             for (int t = 0; t < tk.size(); ++t) {
+                // get current knob
                 Knob* currKnob = cameraOp->knob(tk[t]);
+                // get the number of keyframes
                 int currKeys = currKnob->getNumKeys();
+                
+                // vars
                 std::string currTransName = std::string(tk[t]);
-
                 std::string cx, cy, cz;
 
                 // validate if the current knob has keyframes
