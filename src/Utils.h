@@ -7,4 +7,6 @@
 
 std::string formatDouble(double value, int precision = 10);
 
+std::vector<const char*> getNodeKnobs();
+
 #endif
