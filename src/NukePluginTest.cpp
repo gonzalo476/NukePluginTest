@@ -156,7 +156,7 @@ class NukePluginTest : public  Iop {
             float y = 0;
             float z = 0;
 
-            std::string translation;
+            std::string knobValues;
 
             // translation knobs
             std::vector<const char*> tk = {
@@ -164,39 +164,110 @@ class NukePluginTest : public  Iop {
                 "rotate", 
                 "scaling"
             };
+
+            std::vector<const char*> allCameraKnobs = {
+                "translate",
+                "rotate",
+                "scaling",
+                "uniform_scale",
+                "skew",
+                "pivot",
+                "focal",
+                "haperture",
+                "vaperture",
+                "near",
+                "far",
+                "win_translate",
+                "win_scale",
+                "winroll",
+                "focal_point",
+                "fstop",
+            };
+
+            std::map<std::string, int> knobSizeMap;
+
+            knobSizeMap["translate"] = 3;
+            knobSizeMap["rotate"] = 3;
+            knobSizeMap["scaling"] = 3;
+            knobSizeMap["uniform_scale"] = 1;
+            knobSizeMap["skew"] = 3;
+            knobSizeMap["pivot"] = 3;
+            knobSizeMap["focal"] = 1;
+            knobSizeMap["haperture"] = 1;
+            knobSizeMap["vaperture"] = 1;
+            knobSizeMap["near"] = 1;
+            knobSizeMap["far"] = 1;
+            knobSizeMap["win_translate"] = 2;
+            knobSizeMap["win_scale"] = 2;
+            knobSizeMap["winroll"] = 1;
+            knobSizeMap["focal_point"] = 1;
+            knobSizeMap["fstop"] = 1;
             
             // iterate each knob from vector
-            for (int t = 0; t < tk.size(); ++t) {
+            for (int t = 0; t < allCameraKnobs.size(); ++t) {
                 // get current knob
-                Knob* currKnob = cameraOp->knob(tk[t]);
+                Knob* currKnob = cameraOp->knob(allCameraKnobs[t]);
                 // get the number of keyframes
                 int currKeys = currKnob->getNumKeys();
                 
                 // vars
-                std::string currTransName = std::string(tk[t]);
-                std::string cx, cy, cz;
+                std::string currTransName = std::string(allCameraKnobs[t]);
+                std::string string_1, string_2, string_3;
 
-                // validate if the current knob has keyframes to copy
+                // if the knob is animated perform the next part
                 if (currKeys > 0) {
+                    std::vector<float> vect(knobSizeMap[currTransName]);
+                    // iterate keys from the current knob
                     for (int k = 0; k < currKeys; ++k) {
                         // get key ref frame
                         int frame = currKnob->getKeyTime(k);
-                        // get x, y, z values from the connected camera
-                        x = currKnob->get_value_at(frame, 0); // get x
-                        y = currKnob->get_value_at(frame, 1); // get y
-                        z = currKnob->get_value_at(frame, 2); // get z
-                        // prevent c++ to reformat my double, convert to string
-                        std::string str_x = formatDouble(x);
-                        std::string str_y = formatDouble(y);
-                        std::string str_z = formatDouble(z);
-                        // create the animation curve string {curve xframe num .. }
-                        cx += " x" + std::to_string(frame) + " " + str_x;
-                        cy += " x" + std::to_string(frame) + " " + str_y;
-                        cz += " x" + std::to_string(frame) + " " + str_z;
+                        // iterate knob values
+                        for (int j = 0; j < vect.size(); ++j) {
+                            // get all knob values
+                            vect[j] = currKnob->get_value_at(frame, j);
+                        }
 
+                        // depend of the knob size will concatenate the values
+                        if (vect.size() == 3){
+                            string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
+                            string_2 += " x" + std::to_string(frame) + " " + formatDouble(vect[1]);
+                            string_3 += " x" + std::to_string(frame) + " " + formatDouble(vect[2]);
+                        }
+
+                        if (vect.size() == 2){
+                            string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
+                            string_2 += " x" + std::to_string(frame) + " " + formatDouble(vect[1]);
+                        }
+
+                        if (vect.size() == 1){
+                            string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
+                        }
                     }
-                    // concatenate all translation knobs
-                    translation += currTransName + " {{curve " + cx + "}" + " {curve " + cy + "}" + " {curve " + cz + "}} ";
+                    // concatenate all knobs sizes
+                    if (vect.size() == 3) knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}" + " {curve" + string_3 + "}} ";
+                    if (vect.size() == 2) knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}} ";
+                    if (vect.size() == 1) knobValues += currTransName + " {{curve" + string_1 + "}} ";
+                } else {
+                    // just copy the values
+                    std::vector<float> vect(knobSizeMap[currTransName]);
+
+                    for (int j = 0; j < vect.size(); ++j) {
+                        // get all knob values
+                        vect.resize(knobSizeMap[currTransName]);
+                        vect[j] = currKnob->get_value(j);
+                    }
+
+                    // Concatenate knob values based on their size
+                    knobValues += currTransName + " {";
+                    
+                    for (int i = 0; i < vect.size(); ++i) {
+
+                        knobValues += std::to_string(vect[i]);
+
+                        if (i < vect.size() - 1) knobValues += " ";
+                    }
+
+                    knobValues += "} ";
                 }
             }
 
@@ -208,11 +279,11 @@ class NukePluginTest : public  Iop {
             std::stringstream Script;
             Script << "nukescripts.clear_selection_recursive();";
             Script << "cameraNode = nuke.createNode('Camera', '";
-            Script << translation;
+            Script << knobValues;
             Script << "', False);";
             Script << "nuke.autoplace(cameraNode)";
             script_command(Script.str().c_str(), true, false);
-            script_unlock();       
+            script_unlock();
         }
 
     }
