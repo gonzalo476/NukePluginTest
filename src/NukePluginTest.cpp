@@ -221,7 +221,7 @@ class NukePluginTest : public  Iop {
                     for (int k = 0; k < currKeys; ++k) {
                         // get key ref frame
                         int frame = currKnob->getKeyTime(k);
-                        
+
                         knobValues += currTransName + " {";
                         // iterate knob values
                         for (int j = 0; j < vect.size(); ++j) {
@@ -229,9 +229,11 @@ class NukePluginTest : public  Iop {
                             vect[j] = currKnob->get_value_at(frame, j);
 
                             // depending of the knob size it will be stored on each diferent string
+                            // targetString is referencing each string
                             std::string& targetString = (j == 0) ? string_1 : (j == 1) ? string_2 : string_3;
                             targetString += " x" + std::to_string(frame) + " " + formatDouble(vect[j]);
 
+                            // create the animation curve
                             knobValues += "{curve" + targetString + "}";
                             if (j < vect.size() - 1) {
                                 knobValues += " ";
