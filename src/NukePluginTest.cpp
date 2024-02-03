@@ -228,7 +228,7 @@ class NukePluginTest : public  Iop {
                         }
 
                         // depend of the knob size will concatenate the values
-                        if (vect.size() == 3){
+                        /* if (vect.size() == 3){
                             string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
                             string_2 += " x" + std::to_string(frame) + " " + formatDouble(vect[1]);
                             string_3 += " x" + std::to_string(frame) + " " + formatDouble(vect[2]);
@@ -244,7 +244,22 @@ class NukePluginTest : public  Iop {
                         if (vect.size() == 1){
                             string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
                             knobValues += currTransName + " {{curve" + string_1 + "}} ";
+                        } */
+
+                        // start the camera animated values
+                        knobValues += currTransName + " {";
+
+                        for (size_t i = 0; i < vect.size(); ++i) {
+                            std::string& targetString = (i == 0) ? string_1 : (i == 1) ? string_2 : string_3;
+                            targetString += " x" + std::to_string(frame) + " " + formatDouble(vect[i]);
+
+                            knobValues += "{curve" + targetString + "}";
+                            if (i < vect.size() - 1) {
+                                knobValues += " ";
+                            }
                         }
+
+                        knobValues += "} ";
                     }
                 } else {
                     // just copy the values
