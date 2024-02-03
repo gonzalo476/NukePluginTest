@@ -221,25 +221,22 @@ class NukePluginTest : public  Iop {
                     for (int k = 0; k < currKeys; ++k) {
                         // get key ref frame
                         int frame = currKnob->getKeyTime(k);
+                        
+                        knobValues += currTransName + " {";
                         // iterate knob values
                         for (int j = 0; j < vect.size(); ++j) {
                             // get all knob values
                             vect[j] = currKnob->get_value_at(frame, j);
-                        }
 
-                        // start the camera animated values
-                        knobValues += currTransName + " {";
-
-                        for (int i = 0; i < vect.size(); ++i) {
-                            std::string& targetString = (i == 0) ? string_1 : (i == 1) ? string_2 : string_3;
-                            targetString += " x" + std::to_string(frame) + " " + formatDouble(vect[i]);
+                            // depending of the knob size it will be stored on each diferent string
+                            std::string& targetString = (j == 0) ? string_1 : (j == 1) ? string_2 : string_3;
+                            targetString += " x" + std::to_string(frame) + " " + formatDouble(vect[j]);
 
                             knobValues += "{curve" + targetString + "}";
-                            if (i < vect.size() - 1) {
+                            if (j < vect.size() - 1) {
                                 knobValues += " ";
                             }
                         }
-
                         knobValues += "} ";
                     }
                 } else {
