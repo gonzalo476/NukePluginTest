@@ -234,6 +234,7 @@ class NukePluginTest : public  Iop {
                             targetString += " x" + std::to_string(frame) + " " + formatDouble(vect[j]);
 
                             // create the animation curve
+                            // "{{curve " + string_1 + "}" + " {curve " + string_2 + "}" + " {curve " + string_3 + "}}";
                             knobValues += "{curve" + targetString + "}";
                             if (j < vect.size() - 1) {
                                 knobValues += " ";
