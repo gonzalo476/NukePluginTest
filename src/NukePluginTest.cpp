@@ -232,21 +232,20 @@ class NukePluginTest : public  Iop {
                             string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
                             string_2 += " x" + std::to_string(frame) + " " + formatDouble(vect[1]);
                             string_3 += " x" + std::to_string(frame) + " " + formatDouble(vect[2]);
+                            knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}" + " {curve" + string_3 + "}} ";
                         }
 
                         if (vect.size() == 2){
                             string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
                             string_2 += " x" + std::to_string(frame) + " " + formatDouble(vect[1]);
+                            knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}} ";
                         }
 
                         if (vect.size() == 1){
                             string_1 += " x" + std::to_string(frame) + " " + formatDouble(vect[0]);
+                            knobValues += currTransName + " {{curve" + string_1 + "}} ";
                         }
                     }
-                    // concatenate all knobs sizes
-                    if (vect.size() == 3) knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}" + " {curve" + string_3 + "}} ";
-                    if (vect.size() == 2) knobValues += currTransName + " {{curve" + string_1 + "}" + " {curve" + string_2 + "}} ";
-                    if (vect.size() == 1) knobValues += currTransName + " {{curve" + string_1 + "}} ";
                 } else {
                     // just copy the values
                     std::vector<float> vect(knobSizeMap[currTransName]);
